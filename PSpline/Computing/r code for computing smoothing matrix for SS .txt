@@ -1,0 +1,68 @@
+smoothmatrix_SS<-function(x,lam){
+sx<-sort(x)
+n<-length(x)
+D<-cbind(rep(1,n), sx)
+
+for (i in 1:(n-2)){
+
+temp<-(sx-sx[i])^3*((sx-sx[i])>0)-(sx-sx[n])^3*((sx-sx[n])>0)
+temp<-temp/(sx[n]-sx[i]) #d_i
+temp1<-(sx-sx[n-1])^3*((sx-sx[n-1])>0)-(sx-sx[n])^3*((sx-sx[n])>0)
+temp1<-temp1/(sx[n]-sx[n-1]) #d(n-1)
+
+D<-cbind(D,temp-temp1)
+}
+
+z<-seq(0,1,0.01)
+J<-length(z)
+
+B<-cbind(rep(1,J), z)
+
+for (i in 1:(n-2)){
+
+temp<-(z-sx[i])^3*((z-sx[i])>0)-(z-sx[n])^3*((z-sx[n])>0)
+temp<-temp/(sx[n]-sx[i]) #d_i (z)
+
+temp1<-(z-sx[n-1])^3*((z-sx[n-1])>0)-(z-sx[n])^3*((z-sx[n])>0)
+temp1<-temp1/(sx[n]-sx[n-1]) #d(n-1)(z)
+
+B<-cbind(B,temp-temp1)
+}
+
+#as a result, we get B:J x no. of basis functions containing Bk(zi) as (i,k) entry
+
+#diff
+Bd1<-matrix(NA, J-2, n)
+for (j in 2:(J-1)){
+Bd1[j-1,]<-(B[j+1,]-B[j-1,])/(z[j+1]-z[j-1]) #the first derivative of basis functions
+}
+
+#diff
+Bd2<-matrix(NA, J-4, n)
+for (j in 2:(J-3)){
+Bd2[j-1,]<-(Bd1[j+1,]-Bd1[j-1,])/(z[j+1]-z[j-1]) #the second derivative of basis functions
+}
+
+W<-(t(Bd2)%*%Bd2)/(J-4 )
+
+
+
+S<-D%*% solve(t(D)%*% D+lam*W) %*% t(D)
+return(S)
+}
+
+n<-5
+x<-sort(runif(n))
+lam=1
+
+S<-smoothmatrix_SS(x,lam)
+
+xminus1<-x[-1]
+Sminus1<-smoothmatrix_SS(xminus1,lam)
+
+for (k in 1:(n-1)){
+Sminus1[k,]
+S[k+1,-1]/sum(S[k+1,-1])
+print(max(abs(Sminus1[k,]-S[k+1,-1]/sum(S[k+1,-1]))))
+}
+
