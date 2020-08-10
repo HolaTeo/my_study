@@ -365,7 +365,7 @@ GetBSpline <- function(x, deg = 3, IntKnots, ExtKnots) {
 #' Main EM function using pspline
 #' 
 #' 
-main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 5000) {
+main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 1000) {
   
   # parameter initilization
   eps <- 10  # convergence tracker
@@ -524,7 +524,7 @@ y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
   beta_hat <- NULL
   for(m in 1:205){
     result2_out <- NULL
-    results2 <- glm(unlist(y_list[m]) ~ unlist(x_list), maxit=5000,family = poisson)
+    results2 <- hurdle(unlist(y_list[m]) ~ unlist(x_list), maxit=5000)
       kth_beta_hat <- coef(results2)[2]
       kth_var <- diag(vcov(results2))[2]
       grain_out <- list(kth_beta_hat, kth_var)
@@ -536,7 +536,7 @@ y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
  
 - p-spline 기법을 활용하여 새롭게 짠 코드로 리얼데이터에 적용
 ```{r}
-lambda <- c(1e-09,1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02,0.1,1, 10,100,1000,10000)
+lambda <- c(1e-04,1e-03,1e-02,0.1,1, 10,100,1000,10000)
 GCV_vec <- NULL
 
 n <- length(unlist(beta_hat[,1]))
@@ -558,7 +558,7 @@ lambda[which.min(GCV_vec)]
 - 그래서 100근처에서 GCV벡터를 더 찾아보기로 한다.
  
 ```{r}
-lambda <- seq(1e-04, 1e-03, by=1e-04)
+lambda <- seq(1e-03, 1e-02, by=1e-03)
 GCV_vec <- NULL
  
 for(i in 1:length(lambda)){

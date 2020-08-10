@@ -1,0 +1,436 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+  \setmainfont[]{NanumGothic}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Project for P-spline and Multilevel},
+  pdfauthor={Choi TaeYoung},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\usepackage{kotex}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\title{Project for P-spline and Multilevel}
+\author{Choi TaeYoung}
+\date{2020-08-07}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{uxd544uxc694uxd55c-uxd328uxd0a4uxc9c0}{%
+\section{필요한 패키지}\label{uxd544uxc694uxd55c-uxd328uxd0a4uxc9c0}}
+
+\newpage
+
+\hypertarget{uxb370uxc774uxd130}{%
+\section{데이터}\label{uxb370uxc774uxd130}}
+
+\begin{itemize}
+\item
+  Y data : Y데이터의 경우 120달(2009년 1월\textasciitilde{} 2018년 12월)동안의 GDP Top 100 국가의 한국에 입국한 외국인 수
+\item
+  X data : X데이터의 경우 GDP Top 100 국가의 GDP데이터이다.
+\end{itemize}
+
+\hypertarget{uxb370uxc774uxd130-uxc815uxb9ac-uxbc0f-goodness-of-fit-testuxb97c-uxd1b5uxd55c-uxc801uxc808uxd55c-uxbaa8uxb378-uxcc3euxae30}{%
+\section{데이터 정리 및 Goodness of fit test를 통한 적절한 모델 찾기}\label{uxb370uxc774uxd130-uxc815uxb9ac-uxbc0f-goodness-of-fit-testuxb97c-uxd1b5uxd55c-uxc801uxc808uxd55c-uxbaa8uxb378-uxcc3euxae30}}
+
+\begin{itemize}
+\tightlist
+\item
+  X, Y 데이터 모두 리스트화를 거쳤다. Y데이터가 허들모델이라는 가정으로 각 행마다 0이 얼마나 포함되어 있는지 알아보았다.
+\item
+  그 결과 32, 71, 94, 100, 104, 112, 113행에는 0을 포함하지 않아서 허들모델이나 zero inflated 방법을 이용하여 모델을 적합할 수 없었다.
+\item
+  그래서 우리는 Goodness of Fit(GoF)를 이용하여 일반화 선형모형의 적합도를 검정해보았다.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x\_list \textless{}{-}}\StringTok{ }\NormalTok{x\_gdp[,}\OperatorTok{{-}}\DecValTok{1}\NormalTok{] }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{unlist}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.list}\NormalTok{()}
+
+\CommentTok{\#How many zero in y\_list?}
+\NormalTok{y\_list \textless{}{-}}\StringTok{ }\NormalTok{obs\_y[,}\OperatorTok{{-}}\DecValTok{1}\NormalTok{] }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{t}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{()}
+\NormalTok{y\_zero \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\ControlFlowTok{for}\NormalTok{(m }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{120}\NormalTok{)\{}
+\NormalTok{  zero \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\NormalTok{  zero \textless{}{-}}\StringTok{ }\KeywordTok{length}\NormalTok{(}\KeywordTok{which}\NormalTok{(y\_list[m] }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{))}\OperatorTok{/}\DecValTok{100}
+\NormalTok{  y\_zero \textless{}{-}}\StringTok{ }\KeywordTok{rbind}\NormalTok{(y\_zero,zero)}
+
+\NormalTok{  zero\_count \textless{}{-}}\StringTok{ }\KeywordTok{length}\NormalTok{(}\KeywordTok{which}\NormalTok{(y\_zero }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{0}\NormalTok{))}
+\NormalTok{  zero\_where \textless{}{-}}\StringTok{ }\KeywordTok{which}\NormalTok{(y\_zero }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{0}\NormalTok{)}
+\NormalTok{  zero\_count}
+\NormalTok{  zero\_where}
+\NormalTok{\}}
+\NormalTok{zero\_count}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3
+\end{verbatim}
+
+\newpage
+
+\hypertarget{gof-uxacb0uxacfc}{%
+\subsection{GoF 결과}\label{gof-uxacb0uxacfc}}
+
+\begin{itemize}
+\tightlist
+\item
+  그 결과 포아송 GoF는 모두 0으로 나왔으며, 음이항분포 GoF는 낮은 값을 보였다. 즉, 포아송분포를 사용하였을 때 과대산포가 발생하므로, 음이항분포를 이용하여 모형적합을 시도했다.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#GOF Calculate}
+\NormalTok{goodness \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+  \ControlFlowTok{for}\NormalTok{(m }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{120}\NormalTok{)\{}
+\NormalTok{    result1\_out \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\NormalTok{    result2\_out \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\NormalTok{    results1 \textless{}{-}}\StringTok{ }\KeywordTok{glm}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(y\_list[m]) }\OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(x\_list), }\DataTypeTok{family =}\NormalTok{ poisson, }\DataTypeTok{maxit=}\DecValTok{5000}\NormalTok{)}
+\NormalTok{    results2 \textless{}{-}}\StringTok{ }\KeywordTok{glm.nb}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(y\_list[m]) }\OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(x\_list), }\DataTypeTok{maxit=}\DecValTok{5000}\NormalTok{)}
+    
+
+\NormalTok{    poi\_GOF \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{pchisq}\NormalTok{(}\KeywordTok{summary}\NormalTok{(results1)}\OperatorTok{$}\NormalTok{deviance,}
+           \KeywordTok{summary}\NormalTok{(results1)}\OperatorTok{$}\NormalTok{df.residual}
+\NormalTok{           )}
+\NormalTok{    nb\_GOF \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{pchisq}\NormalTok{(}\KeywordTok{summary}\NormalTok{(results2)}\OperatorTok{$}\NormalTok{deviance,}
+           \KeywordTok{summary}\NormalTok{(results2)}\OperatorTok{$}\NormalTok{df.residual}
+\NormalTok{           )}
+\NormalTok{    out \textless{}{-}}\StringTok{ }\KeywordTok{cbind}\NormalTok{(poi\_GOF,nb\_GOF)}
+\NormalTok{    goodness \textless{}{-}}\StringTok{ }\KeywordTok{rbind}\NormalTok{(goodness, out)}
+\NormalTok{  \}}
+
+\KeywordTok{tail}\NormalTok{(goodness)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        poi_GOF      nb_GOF
+## [115,]       0 0.010183758
+## [116,]       0 0.011146064
+## [117,]       0 0.010772161
+## [118,]       0 0.009441131
+## [119,]       0 0.007446982
+## [120,]       0 0.005703270
+\end{verbatim}
+
+\hypertarget{multilevel-uxbaa8uxb378uxc5d0-uxc801uxc6a9}{%
+\section{Multilevel 모델에 적용}\label{multilevel-uxbaa8uxb378uxc5d0-uxc801uxc6a9}}
+
+\begin{itemize}
+\tightlist
+\item
+  논문의 방법인 EM알고리즘을 통해 multilevel spline 방법으로 최적의 \(\mu\) 벡터를 찾았다.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x\_list \textless{}{-}}\StringTok{ }\NormalTok{x\_gdp }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{unlist}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.list}\NormalTok{()}
+\NormalTok{y\_list \textless{}{-}}\StringTok{ }\NormalTok{obs\_y }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{t}\NormalTok{() }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{()}
+
+\CommentTok{\#multilevel}
+
+  \CommentTok{\#beta\_hat\_vector 구하기}
+\NormalTok{  grain\_out \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\NormalTok{  J=}\DecValTok{120}
+\NormalTok{  beta\_hat \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+  \ControlFlowTok{for}\NormalTok{(m }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{120}\NormalTok{)\{}
+\NormalTok{    result2\_out \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+\NormalTok{    results2 \textless{}{-}}\StringTok{ }\KeywordTok{glm.nb}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(y\_list[m]) }\OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(x\_list), }\DataTypeTok{maxit=}\DecValTok{5000}\NormalTok{)}
+\NormalTok{      kth\_beta\_hat \textless{}{-}}\StringTok{ }\KeywordTok{coef}\NormalTok{(results2)[}\DecValTok{2}\NormalTok{]}
+\NormalTok{      kth\_var \textless{}{-}}\StringTok{ }\KeywordTok{diag}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(results2))[}\DecValTok{2}\NormalTok{]}
+\NormalTok{      grain\_out \textless{}{-}}\StringTok{ }\KeywordTok{list}\NormalTok{(kth\_beta\_hat, kth\_var)}
+\NormalTok{      grain\_out}
+\NormalTok{    beta\_hat \textless{}{-}}\StringTok{ }\KeywordTok{rbind}\NormalTok{(beta\_hat,grain\_out)}
+\NormalTok{  \}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{uxcd5cuxc801uxc758-gcv_vec-uxcc3euxae30}{%
+\subsection{최적의 GCV\_vec 찾기}\label{uxcd5cuxc801uxc758-gcv_vec-uxcc3euxae30}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n \textless{}{-}}\StringTok{ }\KeywordTok{length}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]))}
+\NormalTok{IK \textless{}{-}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{])[}\OperatorTok{{-}}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, n)]}
+\NormalTok{EK \textless{}{-}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{])[}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, n)]}
+\NormalTok{B =}\StringTok{ }\KeywordTok{GetBSpline}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{deg =} \DecValTok{3}\NormalTok{, IK, EK)}
+
+\NormalTok{lambda \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{1e{-}09}\NormalTok{,}\FloatTok{1e{-}08}\NormalTok{,}\FloatTok{1e{-}07}\NormalTok{,}\FloatTok{1e{-}06}\NormalTok{,}\FloatTok{1e{-}05}\NormalTok{,}\FloatTok{1e{-}04}\NormalTok{,}\FloatTok{1e{-}03}\NormalTok{,}\FloatTok{1e{-}02}\NormalTok{,}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{,}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10000}\NormalTok{)}
+\NormalTok{GCV\_vec \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(lambda))\{}
+\NormalTok{EM\_out \textless{}{-}}\StringTok{ }\KeywordTok{main\_EM\_p}\NormalTok{(}\DataTypeTok{beta\_hat\_vec =} \KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{V =} \KeywordTok{diag}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{2}\NormalTok{])),}
+                    \DataTypeTok{B=}\KeywordTok{GetBSpline}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{deg =} \DecValTok{3}\NormalTok{, IK, EK), }\DataTypeTok{D=}\KeywordTok{GetDiffMatrix}\NormalTok{(}\KeywordTok{dim}\NormalTok{(B)[}\DecValTok{1}\NormalTok{], }\DecValTok{2}\NormalTok{), lambda[i])}
+\NormalTok{GCV\_vec \textless{}{-}}\StringTok{ }\KeywordTok{rbind}\NormalTok{(GCV\_vec,EM\_out}\OperatorTok{$}\NormalTok{GCV)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## for lambda = 1e-09 max iteration reached; may need to double check 
+## for lambda = 1e-08 max iteration reached; may need to double check
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lambda[}\KeywordTok{which.min}\NormalTok{(GCV\_vec)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 100
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  lambda{[}which.min(GCV\_vec){]}을 실행할 때, 100이 나온다.
+\item
+  그래서 100근처에서 GCV벡터를 더 찾아보기로 한다.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lambda \textless{}{-}}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\FloatTok{71.65}\NormalTok{,}\FloatTok{71.67}\NormalTok{, }\DataTypeTok{by=}\NormalTok{.}\DecValTok{0005}\NormalTok{)}
+\NormalTok{GCV\_vec \textless{}{-}}\StringTok{ }\OtherTok{NULL}
+ 
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(lambda))\{}
+\NormalTok{EM\_out \textless{}{-}}\StringTok{ }\KeywordTok{main\_EM\_p}\NormalTok{(}\DataTypeTok{beta\_hat\_vec =} \KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{V =} \KeywordTok{diag}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{2}\NormalTok{])),}
+                    \DataTypeTok{B=}\KeywordTok{GetBSpline}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{deg =} \DecValTok{3}\NormalTok{, IK, EK), }\DataTypeTok{D=}\KeywordTok{GetDiffMatrix}\NormalTok{(}\KeywordTok{dim}\NormalTok{(B)[}\DecValTok{1}\NormalTok{], }\DecValTok{2}\NormalTok{), lambda[i])}
+\NormalTok{GCV\_vec \textless{}{-}}\StringTok{ }\KeywordTok{rbind}\NormalTok{(GCV\_vec,EM\_out}\OperatorTok{$}\NormalTok{GCV)}
+\NormalTok{\}}
+ 
+  
+\KeywordTok{plot}\NormalTok{(lambda, GCV\_vec)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{project1_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\begin{itemize}
+\tightlist
+\item
+  최적의 GCV\_vec로 EM\_out구하기 \textless- mu\_hat 구함
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lambda[}\KeywordTok{which.min}\NormalTok{(GCV\_vec)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 71.6605
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{EM\_out \textless{}{-}}\StringTok{ }\KeywordTok{main\_EM\_p}\NormalTok{(}\DataTypeTok{beta\_hat\_vec =} \KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{V =} \KeywordTok{diag}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{2}\NormalTok{])),}
+                    \DataTypeTok{B=}\KeywordTok{GetBSpline}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{deg =} \DecValTok{3}\NormalTok{, IK, EK), }\DataTypeTok{D=}\KeywordTok{GetDiffMatrix}\NormalTok{(}\KeywordTok{dim}\NormalTok{(B)[}\DecValTok{1}\NormalTok{], }\DecValTok{2}\NormalTok{),  lambda[}\KeywordTok{which.min}\NormalTok{(GCV\_vec)])}
+\KeywordTok{tail}\NormalTok{(EM\_out}\OperatorTok{$}\NormalTok{mu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                [,1]
+## [115,] 5.225816e-07
+## [116,] 5.335485e-07
+## [117,] 5.234290e-07
+## [118,] 5.220627e-07
+## [119,] 5.105815e-07
+## [120,] 5.526976e-07
+\end{verbatim}
+
+\newpage
+
+\hypertarget{naive-methodfrom-ydhwangmlsplines-in-github}{%
+\section{Naive Method(from ``ydhwang/mlsplines'' in Github)}\label{naive-methodfrom-ydhwangmlsplines-in-github}}
+
+\begin{itemize}
+\tightlist
+\item
+  Multilevel과 성능을 비교하기위해서 Naive한 방법으로 구해보자.
+\end{itemize}
+
+\hypertarget{naives-gcv-vector-uxcc3euxae30}{%
+\subsection{Naive's GCV vector 찾기}\label{naives-gcv-vector-uxcc3euxae30}}
+
+\begin{itemize}
+\tightlist
+\item
+  Naive 역시 비슷한 방법으로 풀어나간다.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{naive\_out \textless{}{-}}\StringTok{ }\KeywordTok{naive\_ss\_p}\NormalTok{(}\DataTypeTok{beta\_hat\_vec =} \KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{B=}\KeywordTok{GetBSpline}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]), }\DataTypeTok{deg =} \DecValTok{3}\NormalTok{, IK, EK),  }\DataTypeTok{D=}\KeywordTok{GetDiffMatrix}\NormalTok{(}\KeywordTok{dim}\NormalTok{(B)[}\DecValTok{1}\NormalTok{],}\DecValTok{2}\NormalTok{),}\DataTypeTok{lambda=}\DecValTok{99999999999999}\NormalTok{)}
+
+
+\KeywordTok{tail}\NormalTok{(naive\_out}\OperatorTok{$}\NormalTok{mu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                [,1]
+## [115,] 6.650403e-07
+## [116,] 4.543049e-07
+## [117,] 6.394328e-07
+## [118,] 6.644728e-07
+## [119,] 6.271582e-07
+## [120,] 6.879637e-07
+\end{verbatim}
+
+\hypertarget{uxadf8uxb798uxd504}{%
+\section{그래프}\label{uxadf8uxb798uxd504}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# hat\_all}
+\NormalTok{single\_beta \textless{}{-}}\StringTok{ }\KeywordTok{unlist}\NormalTok{(beta\_hat[,}\DecValTok{1}\NormalTok{]) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.vector}\NormalTok{()}
+\NormalTok{mu\_z\_naive \textless{}{-}}\StringTok{ }\NormalTok{naive\_out}\OperatorTok{$}\NormalTok{mu }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.vector}\NormalTok{()}
+\NormalTok{mu\_z\_multi \textless{}{-}}\StringTok{ }\NormalTok{EM\_out}\OperatorTok{$}\NormalTok{mu }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{as.vector}\NormalTok{()}
+
+\NormalTok{hat\_all \textless{}{-}}\StringTok{ }\KeywordTok{cbind}\NormalTok{(mu\_z\_naive,mu\_z\_multi,single\_beta) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\NormalTok{as.data.frame}
+
+\NormalTok{test\_mon \textless{}{-}}\StringTok{ }\KeywordTok{fread}\NormalTok{(}\StringTok{"obs\_y.csv"}\NormalTok{)}
+\NormalTok{test\_mon \textless{}{-}}\StringTok{ }\NormalTok{test\_mon[}\OperatorTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{hat\_all \textless{}{-}}\StringTok{ }\KeywordTok{cbind}\NormalTok{(test\_mon,hat\_all)}
+
+\NormalTok{hat\_all}\OperatorTok{$}\NormalTok{Month \textless{}{-}}\StringTok{ }\KeywordTok{parse\_date\_time}\NormalTok{(hat\_all}\OperatorTok{$}\NormalTok{Month, }\StringTok{"ymd"}\NormalTok{)}
+\NormalTok{hat\_all}\OperatorTok{$}\NormalTok{Month \textless{}{-}}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(hat\_all}\OperatorTok{$}\NormalTok{Month, }\DataTypeTok{format=}\StringTok{"\%Y{-}\%m{-}\%d"}\NormalTok{)}
+\NormalTok{hat\_all \textless{}{-}}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hat\_all)}
+\NormalTok{hat\_all \textless{}{-}}\StringTok{ }\NormalTok{hat\_all }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{mutate\_if}\NormalTok{(is.character,parse\_number)}
+
+\CommentTok{\# gather 사용}
+\NormalTok{df1 \textless{}{-}}\StringTok{ }\KeywordTok{gather}\NormalTok{(hat\_all[, }\KeywordTok{c}\NormalTok{(}\StringTok{"Month"}\NormalTok{, }\StringTok{"mu\_z\_naive"}\NormalTok{, }\StringTok{"mu\_z\_multi"}\NormalTok{)],}
+             \DataTypeTok{key =} \StringTok{"Method"}\NormalTok{, }\DataTypeTok{value =} \StringTok{"mu\_z"}\NormalTok{, }\OperatorTok{{-}}\NormalTok{Month)}
+
+\NormalTok{df2 \textless{}{-}}\StringTok{ }\KeywordTok{cbind}\NormalTok{(test\_mon,single\_beta)}
+\NormalTok{df2}\OperatorTok{$}\NormalTok{Month \textless{}{-}}\StringTok{ }\KeywordTok{parse\_date\_time}\NormalTok{(df2}\OperatorTok{$}\NormalTok{Month, }\StringTok{"ymd"}\NormalTok{)}
+\NormalTok{df2}\OperatorTok{$}\NormalTok{Month \textless{}{-}}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(df2}\OperatorTok{$}\NormalTok{Month, }\DataTypeTok{format=}\StringTok{"\%Y{-}\%m{-}\%d"}\NormalTok{)}
+\NormalTok{df2 \textless{}{-}}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(df2)}
+\NormalTok{df2 \textless{}{-}}\StringTok{ }\NormalTok{df2 }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{mutate\_if}\NormalTok{(is.character,parse\_number)}
+
+
+\NormalTok{g \textless{}{-}}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(df1) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom\_line}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Month, }\DataTypeTok{y =}\NormalTok{ mu\_z, }\DataTypeTok{color =}\NormalTok{ Method, }\DataTypeTok{linetype =}\NormalTok{ Method)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom\_point}\NormalTok{(}\DataTypeTok{data=}\NormalTok{df2, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Month, }\DataTypeTok{y =}\NormalTok{ single\_beta, }\DataTypeTok{color =} \StringTok{"single\_beta"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{guides}\NormalTok{(}\DataTypeTok{linetype =} \StringTok{"none"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale\_color\_discrete}\NormalTok{(}\DataTypeTok{name =} \StringTok{"Method"}\NormalTok{)}
+\NormalTok{g}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{project1_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\end{document}
