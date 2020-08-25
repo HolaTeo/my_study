@@ -1,20 +1,18 @@
 ---
 title: "Project for P-spline and Multilevel"
 author: "Choi TaeYoung"
+header-includes:
+  - \usepackage{kotex}
+  - \usepackage{fontspec}
+  - \usepackage{unicode-math}
 date: "`r format(Sys.Date(), '%Y-%m-%d')`"
-output:
+output: 
+  pdf_document: 
+    latex_engine: xelatex
+    toc: yes
   bookdown::pdf_document2:
     latex_engine: xelatex
-  pdf_document:
-    latex_engine: xelatex
-    toc: yes
-  word_document:
-    toc: yes
-header-includes:
-- \usepackage{kotex}
-- \usepackage{fontspec}
-- \usepackage{unicode-math}
-mainfont: NanumBarunGothic
+mainfont: NanumGothic
 ---
 
 ```{r setup, include=FALSE}
@@ -41,11 +39,9 @@ library(dygraphs)
 library(highcharter)
  
 # for model
+library(pscl)
 library(pspline)
-```
 
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
 #' generate simulated response for multilevel splines
 #'
 #' Generates simulated response for multilevel splines
@@ -298,10 +294,6 @@ generate_response_smooth <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma =
 #'
 #' @export
 #'
-```
-
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
 GetDiffMatrix <- function(nr, ord = 2) {
   # Set up difference matrix
   D <- matrix(0, nrow = nr, ncol = nr + ord)
@@ -373,16 +365,12 @@ GetBSpline <- function(x, deg = 3, IntKnots, ExtKnots) {
 
 #' Main EM function using pspline
 #' 
-#'
-```
-
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
-main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 5000) {
+#' 
+main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 500) {
   
   # parameter initilization
-  eps <- 1  # convergence tracker
-  tol <- 1e-07  # convergence threshold
+  eps <- 1000  # convergence tracker
+  tol <- 1e-05  # convergence threshold
   sigma2_m <- mean(diag(V))
   J <- length(beta_hat_vec)
   mu_m <- rep(mean(beta_hat_vec), J)
@@ -396,9 +384,9 @@ main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 5000) {
     
     Vst <- solve(solve(V) + (1/sigma2_m) * diag(J))  # Vst
     D_m <- Vst %*% solve(V)  #D_m <- part_cov %*% V
-    mu_m <- B%*%solve(t(B)%*%D_m%*%B + lambda * t(D)%*%D,tol=1e-30) %*%t(B)%*% D_m %*% beta_hat_vec
+    mu_m <- B%*%solve(t(B)%*%D_m%*%B + lambda * t(D)%*%D) %*%t(B)%*% D_m %*% beta_hat_vec
     
-    S_lambda <- B%*%solve(t(B)%*%D_m%*%B + lambda * t(D)%*%D,tol=1e-30) %*%t(B)%*% D_m
+    S_lambda <- B%*%solve(t(B)%*%D_m%*%B + lambda * t(D)%*%D) %*%t(B)%*% D_m
     effective_df <- sum(diag(S_lambda))
     
     sigma2_m <- mean((beta_hat_vec - mu_m)^2)
@@ -416,6 +404,7 @@ main_EM_p <- function(beta_hat_vec, V, B, D, lambda, maxit = 5000) {
   EM_out
 }
 
+
 #' Naive strawman using p-spline
 #' 
 #' 
@@ -423,7 +412,7 @@ naive_ss_p <- function(beta_hat_vec, lambda, B, D) {
   
   J <- length(beta_hat_vec)
   I <- diag(J)
-  Sn_lambda <- B%*%solve(t(B)%*%B + lambda*t(D)%*%D,tol=1e-30) %*% t(B)
+  Sn_lambda <- B%*%solve(t(B)%*%B + lambda*t(D)%*%D) %*% t(B)
   f_hat <- Sn_lambda %*% beta_hat_vec
   
   eff_df <- sum(diag(Sn_lambda))
@@ -438,18 +427,26 @@ naive_ss_p <- function(beta_hat_vec, lambda, B, D) {
 \newpage
  
 # 데이터
-- Y data : Y데이터의 경우 28주(2009년 1월 ~ 2018년 12월)동안의 유튜브 Hot200 진입 횟수를 나타내었다.
+- Y data : Y데이터의 경우 120달(2009년 1월 ~ 2018년 12월)동안의 한국에 입국한 국적별 외국인 수를 나타냈다.
  
-- X data :  Top 50 유튜버의 구독자수를 나타내었다.
+- X data :  X데이터의 경우 120달 동안의 각 나라의 한국 원화 기준 환율을 나타낸 것이다. 나라는 한글 순으로 [가나, 가봉, … , 헝가리,호주, 홍콩] 174개국으로 구성된 국가 중 GDP TOP100 국가를 추출했다. 그리고 시간의 흐름에 따라 데이터를 나열했다.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Y data
-obs_y <- fread("y_yt_week.csv")
+
+obs_y <- fread("obs_y.csv")
+obs_y$Month <- parse_date_time(obs_y$Month, "ym")
+obs_y$Month <- as.Date(obs_y$Month, format="%Y-%m-%d")
+obs_y <- as.data.frame(obs_y)
+obs_y <- obs_y %>% mutate_if(is.character,parse_number)
 
 # X data
-x_gdp <- fread("x_info.csv")
-x_gdp <- x_gdp[,1:2]
+x_gdp <- fread("x_gdp.csv")
+# x_gdp$Month <- parse_date_time(x_gdp$Month, "ym")
+# x_gdp$Month <- as.Date(x_gdp$Month, format="%Y-%m-%d")
+# x_gdp <- as.data.frame(x_gdp)
+# x_gdp <- x_gdp %>% mutate_if(is.character,parse_number)
 ```
 
  
@@ -466,18 +463,21 @@ x_gdp <- x_gdp[,1:2]
 x_list <- x_gdp[,-1] %>% as.data.frame() %>% unlist() %>% as.list()
 
 #How many zero in y_list?
+
 y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
 y_zero <- NULL
-for(m in 1:28){
-  zero <- NULL
-  zero <- length(which(y_list[m] == 0))/50
-  y_zero <- rbind(y_zero,zero)
 
+for(m in 1:120){
+  zero <- NULL
+  zero <- length(which(y_list[m] == 0))/100
+  y_zero <- rbind(y_zero,zero)
+ 
   zero_count <- length(which(y_zero > 0))
   zero_where <- which(y_zero > 0)
   zero_count
   zero_where
 }
+
 zero_count
 ```
 
@@ -490,26 +490,36 @@ zero_count
 - 그 결과 포아송 GoF는 모두 0으로 나왔으며, 음이항분포 GoF는 낮은 값을 보였다. 즉, 포아송분포를 사용하였을 때 과대산포가 발생하므로, 음이항분포를 이용하여 모형적합을 시도했다.
 
 ```{r}
+x_list <- x_gdp[,-1] %>% as.data.frame() %>% unlist() %>% as.list()
+y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
+
 #GOF Calculate
+
 goodness <- NULL
-  for(m in 1:28){
+
+  for(m in 1:120){
     result1_out <- NULL
     result2_out <- NULL
-    results1 <- glm(unlist(y_list[m]) ~ unlist(x_list), family = poisson, maxit=1000)
-    results2 <- glm.nb(unlist(y_list[m]) ~ unlist(x_list), maxit=1000)
-    
-
+    result2_out <- NULL
+    results1 <- glm(unlist(y_list[m]) ~ unlist(x_list), family = poisson, maxit=500)
+    results2 <- glm.nb(unlist(y_list[m]) ~ unlist(x_list), maxit=500)
+    results3 <- glm(unlist(y_list[m]) ~ unlist(x_list), family = quasipoisson, maxit=500)
+ 
     poi_GOF <- 1 - pchisq(summary(results1)$deviance,
            summary(results1)$df.residual
            )
     nb_GOF <- 1 - pchisq(summary(results2)$deviance,
            summary(results2)$df.residual
            )
-    out <- cbind(poi_GOF,nb_GOF)
+    ga_GOF <- 1 - pchisq(summary(results3)$deviance,
+           summary(results3)$df.residual
+           )
+    out <- cbind(poi_GOF,nb_GOF,ga_GOF)
     goodness <- rbind(goodness, out)
   }
-
+ 
 tail(goodness)
+
 ```
 
  
@@ -528,11 +538,11 @@ y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
   #beta_hat_vector 구하기
 
   grain_out <- NULL
-  J=28
+  J=120
   beta_hat <- NULL
-  for(m in 1:28){
+  for(m in 1:120){
     result2_out <- NULL
-    results2 <- glm(unlist(y_list[m]) ~ unlist(x_list), family = poisson, maxit=1000)
+    results2 <- glm.nb(unlist(y_list[m]) ~ unlist(x_list), maxit=500)
       kth_beta_hat <- coef(results2)[2]
       kth_var <- diag(vcov(results2))[2]
       grain_out <- list(kth_beta_hat, kth_var)
@@ -544,7 +554,7 @@ y_list <- obs_y[,-1] %>% t() %>% as.data.frame()
  
 - p-spline 기법을 활용하여 새롭게 짠 코드로 리얼데이터에 적용
 ```{r}
-lambda <- c(1e-11,1e-10,1e-09,1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02,0.1,1, 10,100)
+lambda <- c(0.0001, 0.001, 0.01, 0.1 ,1, 10, 100, 10^3, 10^4, 10^5)
 GCV_vec <- NULL
 
 n <- length(unlist(beta_hat[,1]))
@@ -566,8 +576,8 @@ lambda[which.min(GCV_vec)]
 - 그래서 100근처에서 GCV벡터를 더 찾아보기로 한다.
  
 ```{r}
-lambda <- seq(11.56, 11.58, by=.0005)
-GCV_vec <- NULL
+lambda <- seq(70, 70.5, by=.01)
+  GCV_vec <- NULL
  
 for(i in 1:length(lambda)){
 EM_out <- main_EM_p(beta_hat_vec = unlist(beta_hat[,1]), V = diag(unlist(beta_hat[,2])),
@@ -595,7 +605,7 @@ tail(EM_out$mu)
 ```{r}
 #naive
 GCV_vec <- NULL
-lambda <- c(1e-10,1e-09,1e-08,1e-07,1e-06,1e-05,1e-04,1e-03,1e-02,0.1,1,10,100,1000, 10^4, 10^5, 10^6)
+lambda <- c(0.0001, 0.001, 0.01, 0.1 ,1, 10, 100, 10^3, 10^4, 10^5)
 for(i in 1:length(lambda)){
   naive_out <- naive_ss_p(beta_hat_vec = unlist(beta_hat[,1]), B=GetBSpline(unlist(beta_hat[,1]), deg = 3, IK, EK), D=GetDiffMatrix(dim(B)[1], 2), lambda[i])
   GCV_vec <- rbind(GCV_vec,naive_out$GCV)
@@ -607,16 +617,17 @@ lambda[which.min(GCV_vec)]
 - Naive 역시 비슷한 방법으로 풀어나간다.
 ```{r}
 GCV_vec <- NULL
-lambda <- seq(58, 62, by=.05)
+lambda <- seq(92, 98, by=1)
 for(i in 1:length(lambda)){
   naive_out <- naive_ss_p(beta_hat_vec = unlist(beta_hat[,1]), lambda = lambda[i],
                          B=GetBSpline(unlist(beta_hat[,1]), deg = 3, IK, EK), D=GetDiffMatrix(dim(B)[1], 2))
   GCV_vec <- rbind(GCV_vec,naive_out$GCV)
 }
+lambda[which.min(GCV_vec)]
+ 
 plot(lambda, GCV_vec)
  
-lambda[which.min(GCV_vec)]
-naive_out <- naive_ss_p(beta_hat_vec = unlist(beta_hat[,1]), B=GetBSpline(unlist(beta_hat[,1]), deg = 3, IK, EK),  D=GetDiffMatrix(dim(B)[1],2),lambda=999999999)
+naive_out <- naive_ss_p(beta_hat_vec = unlist(beta_hat[,1]), B=GetBSpline(unlist(beta_hat[,1]), deg = 3, IK, EK),  D=GetDiffMatrix(dim(B)[1],2),lambda=lambda[which.min(GCV_vec)])
 
 
 tail(naive_out$mu)
@@ -640,23 +651,23 @@ single_beta <- unlist(beta_hat[,1]) %>% as.vector()
 mu_z_multi <- EM_out$mu %>% as.vector()
 
 #mu_z_naive <- naive_out$mu %>% as.vector()
-test_mon <- fread("y_yt_week.csv")
+test_mon <- fread("obs_y.csv")
 test_mon <- test_mon[-1,1]
 
 mu_z <- cbind(test_mon,mu_z_multi) %>% as.data.frame
-mu_z <- rename(mu_z, Week = V1)
+# mu_z <- rename(mu_z, Week = V1)
 
-# hat_all$Week <- parse_date_time(hat_all$Week, "ymd")
-# hat_all$Week <- as.Date(hat_all$Week, format="%Y-%m-%d")
-# hat_all <- as.data.frame(hat_all)
-# hat_all <- hat_all %>% mutate_if(is.character,parse_number)
+mu_z$Month <- parse_date_time(mu_z$Month, "ymd")
+mu_z$Month <- as.Date(mu_z$Month, format="%Y-%m-%d")
+mu_z <- as.data.frame(mu_z)
+mu_z <- mu_z %>% mutate_if(is.character,parse_number)
 
 # gather 사용
 
 df2 <- cbind(test_mon,single_beta)
-df2 <- rename(df2, Week =V1)
+# df2 <- rename(df2, Week =V1)
 
-df2_naive <- smP(df2$single_beta~df2$Week, df2)
+df2_naive <- smP(df2$single_beta~df2$Month, df2)
 df2 <- cbind(df2,df2_naive$ysmth)
 df2 <- rename(df2, Naive =V1)
 
@@ -668,12 +679,12 @@ df2 <- rename(df2, Multi =V2)
 # df2 <- as.data.frame(df2)
 # df2 <- df2 %>% mutate_if(is.character,parse_number)
 
-df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
-             key = "Method", value = "mu_z", -Week)
+df2 <- gather(df2[, c("Month",  "single_beta", "Naive", "Multi")],
+             key = "Method", value = "mu_z", -Month)
 
 g <- ggplot(df2) +
-  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
-  geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
+  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Month, y = mu_z, color = Method, linetype = Method)) +
+  geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Month, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +
   scale_color_discrete(name = "Method")
 g

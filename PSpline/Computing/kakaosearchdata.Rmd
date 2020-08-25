@@ -636,38 +636,55 @@ tail(naive_out$mu)
 # 그래프
 
 ```{r}
+smP <- function(formula,data,...){
+  M <- model.frame(formula, data)
+  sm.spline(x =M[,2],y =M[,1])
+}
+# an s3 method for predictdf (called within stat_smooth)
+predictdf.smooth.Pspline <- function(model, xseq, se, level) {
+  pred <- predict(model, xseq)
+  data.frame(x = xseq, y = c(pred))
+}
+
 # hat_all
 single_beta <- unlist(beta_hat[,1]) %>% as.vector()
-mu_z_naive <- naive_out$mu %>% as.vector()
 mu_z_multi <- EM_out$mu %>% as.vector()
 
-hat_all <- cbind(mu_z_naive,mu_z_multi,single_beta) %>% as.data.frame
-
+#mu_z_naive <- naive_out$mu %>% as.vector()
 test_mon <- fread("soltr_kakao_y.csv")
-test_mon <- test_mon[,1]
-hat_all <- cbind(test_mon,hat_all)
-hat_all <- rename(hat_all, Week = V1)
+test_mon <- test_mon[-1,1]
 
-# hat_all$Month <- parse_date_time(hat_all$Month, "ym")
-# hat_all$Month <- as.Date(hat_all$Month, format="%Y-%m-%d")
+mu_z <- cbind(test_mon,mu_z_multi) %>% as.data.frame
+mu_z <- rename(mu_z, Week = V1)
+
+# hat_all$Week <- parse_date_time(hat_all$Week, "ymd")
+# hat_all$Week <- as.Date(hat_all$Week, format="%Y-%m-%d")
 # hat_all <- as.data.frame(hat_all)
 # hat_all <- hat_all %>% mutate_if(is.character,parse_number)
 
 # gather 사용
-df1 <- gather(hat_all[, c("Week", "mu_z_naive", "mu_z_multi")],
-             key = "Method", value = "mu_z", -Week)
 
 df2 <- cbind(test_mon,single_beta)
 df2 <- rename(df2, Week =V1)
-# df2$Month <- parse_date_time(df2$Month, "ym")
-# df2$Month <- as.Date(df2$Month, format="%Y-%m-%d")
+
+df2_naive <- smP(df2$single_beta~df2$Week, df2)
+df2 <- cbind(df2,df2_naive$ysmth)
+df2 <- rename(df2, Naive =V1)
+
+df2 <- cbind(df2,mu_z$mu_z_multi)
+df2 <- rename(df2, Multi =V2)
+
+# df2$Week <- parse_date_time(df2$Week, "ymd")
+# df2$Week <- as.Date(df2$Week, format="%Y-%m-%d")
 # df2 <- as.data.frame(df2)
 # df2 <- df2 %>% mutate_if(is.character,parse_number)
 
+df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
+             key = "Method", value = "mu_z", -Week)
 
-g <- ggplot(df1) +
-  geom_line(aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
-  geom_point(data=df2, aes(x = Week, y = single_beta, color = "single_beta")) +
+g <- ggplot(df2) +
+  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
+  geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +
   scale_color_discrete(name = "Method")
 g

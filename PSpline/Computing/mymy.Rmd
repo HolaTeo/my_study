@@ -434,10 +434,10 @@ naive_ss_p <- function(beta_hat_vec, lambda, B, D) {
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Y data
 
-obs_y <- fread("S:\\Teo\\OneDrive - 성균관대학교\\1석사\\연구\\내 연구\\PSpline\\Computing\\y_yt.csv")
+obs_y <- fread("y_yt.csv")
 
 # X data
-x_gdp <- fread("S:\\Teo\\OneDrive - 성균관대학교\\1석사\\연구\\내 연구\\PSpline\\Computing\\x_info.csv")
+x_gdp <- fread("x_info.csv")
 x_gdp <- x_gdp[,-3]
 ```
 
