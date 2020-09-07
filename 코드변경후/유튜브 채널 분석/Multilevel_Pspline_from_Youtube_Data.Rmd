@@ -494,9 +494,9 @@ PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
 \newpage
  
 # 데이터
-- Y data : Y데이터의 경우 134주(2018년 1월 ~ 2020년 7월)동안의 카카오로 "혼자여행"을 검색한 횟수를 지역별로 나타냄
+- Y data : Y데이터의 경우 292행(2018년 12월 15일 6시~ 2019년 1월20일 15시) 3시간 간격의 Top 100 채널의 채널별 증가한 조회수를 나타냈다.
  
-- X data :  X데이터의 경우 17개의 지역별 인구수
+- X data :  기간동안 평균 구독자 수의 Top100 채널을 선별했다. 
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}

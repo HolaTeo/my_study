@@ -1,5 +1,5 @@
 ---
-title: "Multilevel Pspline from Youtube Data"
+title: "Multilevel Pspline from Kakao Search Data"
 author: "Choi TaeYoung"
 date: "`r format(Sys.Date(), '%Y-%m-%d')`"
 output:
@@ -30,8 +30,6 @@ library(devtools)
 library(MASS)
 library(lubridate)
 library(quantmod)
-library(clusterSim)
-
 # library(PerformnceAnalytics)
 library(magrittr)
 library(dplyr)
@@ -494,41 +492,41 @@ PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
 \newpage
  
 # 데이터
-- Y data : Y데이터의 경우 134주(2018년 1월 ~ 2020년 7월)동안의 카카오로 "혼자여행"을 검색한 횟수를 지역별로 나타냄
+- Y data : Y데이터의 경우 139주(2018년 1월 ~ 2020년 8월)동안의 카카오로 "홈트레이닝"을 검색한 횟수를 지역별로 나타냄
  
 - X data :  X데이터의 경우 17개의 지역별 인구수
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Y data
-obs_y <- fread("C:/onedrive/OneDrive - 성균관대학교/1석사/연구/내 연구/PSpline/Computing/hour_youtube_view.csv")
+obs_y <- fread("HT_kakao_search.csv")
 z_month <- unlist(obs_y[-1,2]) %>% scale()
 
 # X data
-x_pop <- obs_y[1,3:102] %>% t()
+x_pop <- obs_y[1,3:19] %>% t()
+
+# X, y 데이터
+x_list <- x_pop %>% as.data.frame() %>% unlist() %>% as.list()
+y_list <- obs_y[-1,3:19] %>% t() %>% as.data.frame()
 ```
 
 \newpage
-
 
 # Multilevel 모델에 적용
 
 - 논문의 방법인 EM알고리즘을 통해 multilevel spline 방법으로 최적의 $\mu$ 벡터를 찾았다.
 
 ```{r}
-x_list <- x_pop %>% as.data.frame() %>% unlist() %>% as.list()
-y_list <- obs_y[2:293,3:102] 
-y_list <- data.Normalization(y_list,type = "n1", normalization = "column") %>% as.data.frame() %>% t()
 #multilevel
 
   #beta_hat_vector 구하기
 
   grain_out <- NULL
-  J=292
+  J=139
   beta_hat <- NULL
-  for(m in 1:292){
+  for(m in 1:139){
     result2_out <- NULL
-    results2 <- glm(unlist(y_list[,m]) ~ unlist(x_list), maxit=2000)
+    results2 <- glm(unlist(y_list[m]) ~ unlist(x_list), maxit=2000)
       kth_beta_hat <- coef(results2)[2]
       kth_var <- diag(vcov(results2))[2]
       grain_out <- list(kth_beta_hat, kth_var)
@@ -539,25 +537,8 @@ y_list <- data.Normalization(y_list,type = "n1", normalization = "column") %>% a
  
  
 - p-spline 기법을 활용하여 새롭게 짠 코드로 리얼데이터에 적용
-```{r}
-lambda <- c(0.1,1,10,100,10^3,10^4,10^5,10^6,10^7)
-GCV_vec <- NULL
-
-for(i in 1:length(lambda)){
-EM_out <- MultiEM_ps(x=z_month,beta_hat_vec = unlist(beta_hat[,1]), V = diag(unlist(beta_hat[,2])),lambda[i])
-GCV_vec <- rbind(GCV_vec,EM_out$GCV)
-}
-lambda[which.min(GCV_vec)]
-```
- 
- 
-- lambda[which.min(GCV_vec)]을 실행할 때, 10^8이 나온다. 
- 
-- 최적의 GCV_vec로 EM_out구하기 <- mu_hat 구함
 
 ```{r}
-lambda[which.min(GCV_vec)]
-
 EM_out <- MultiEM_ps(x=z_month,
                      beta_hat_vec=unlist(beta_hat[,1]),
                      V=diag(unlist(beta_hat[,2])),
@@ -566,29 +547,15 @@ tail(EM_out$mu)
 ```
  
 \newpage
+## Naive's GCV vector 찾기
  
 - Multilevel과 성능을 비교하기위해서 Naive한 방법으로 구해보자.
 - Naive기법 역시 P-spline으로 코드를 짠 후 실행했다.
+
 ```{r}
-#naive
-GCV_vec <- NULL
-lambda <- c(10^4,10^5,10^6,10^7,10^8,10^9)
-for(i in 1:length(lambda)){
-  naive_out <- naive_ps(x=z_month,
-                          beta_hat_vec=unlist(beta_hat[,1]),
-                          lambda[i])
-  GCV_vec <- rbind(GCV_vec,naive_out$GCV)
-}
-
-lambda[which.min(GCV_vec)]
-```
-## Naive's GCV vector 찾기
-- Naive 역시 비슷한 방법으로 풀어나간다.
-```{r}
-lambda[which.min(GCV_vec)]
-naive_out <- naive_ps(x=z_month,beta_hat_vec=unlist(beta_hat[,1]),lambda = lambda[which.min(GCV_vec)])
-
-
+naive_out <- naive_ps(x=z_month,
+                      beta_hat_vec=unlist(beta_hat[,1]),
+                      lambda = 10000)
 tail(naive_out$mu)
 ```
 
@@ -600,22 +567,16 @@ single_beta <- unlist(beta_hat[,1]) %>% as.vector()
 mu_z_multi <- EM_out$mu %>% as.vector()
 
 #mu_z_naive <- naive_out$mu %>% as.vector()
-test_mon <- fread("C:/onedrive/OneDrive - 성균관대학교/1석사/연구/내 연구/PSpline/Computing/hour_youtube_view.csv")
+test_mon <- fread("HT_kakao_search.csv")
 test_mon <- test_mon[-1,1]
 
 mu_z <- cbind(obs_y[-1,2],mu_z_multi) %>% as.data.frame
-mu_z <- rename(mu_z, Time = V2)
-
-# hat_all$Week <- parse_date_time(hat_all$Week, "ymd")
-# hat_all$Week <- as.Date(hat_all$Week, format="%Y-%m-%d")
-# hat_all <- as.data.frame(hat_all)
-# hat_all <- hat_all %>% mutate_if(is.character,parse_number)
-
+mu_z <- rename(mu_z, Week = V2)
 
 # naive
 
-df2 <- cbind(obs_y[-1,2],single_beta)
-df2 <- rename(df2, Time =V2)
+df2 <- cbind(test_mon,single_beta)
+df2 <- rename(df2, Week =V1)
 
 df2_naive <- naive_out$betaEst
 df2 <- cbind(df2,df2_naive)
@@ -624,18 +585,13 @@ df2 <- rename(df2, Naive =df2_naive)
 df2 <- cbind(df2,mu_z$mu_z_multi)
 df2 <- rename(df2, Multi =V2)
 
-# df2$Week <- parse_date_time(df2$Week, "ymd")
-# df2$Week <- as.Date(df2$Week, format="%Y-%m-%d")
-# df2 <- as.data.frame(df2)
-# df2 <- df2 %>% mutate_if(is.character,parse_number)
-
 # gather함수 사용
-df2 <- gather(df2[, c("Time",  "single_beta", "Naive", "Multi")],
-             key = "Method", value = "mu_z", -Time)
+df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
+             key = "Method", value = "mu_z", -Week)
 
 g <- ggplot(df2) +
-  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Time, y = mu_z, color = Method, linetype = Method)) +
-  geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Time, y = single_beta, color = "single_beta")) +
+  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
+  geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +
   scale_color_discrete(name = "Method")
 g
