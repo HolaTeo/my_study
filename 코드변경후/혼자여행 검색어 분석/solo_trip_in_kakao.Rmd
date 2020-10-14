@@ -500,10 +500,14 @@ PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Y data
 obs_y <- fread("soltr_kakao_y.csv")
-z_month <- unlist(obs_y[-1,1]) %>% scale()
+z_month <- unlist(obs_y[-1,2]) %>% scale()
 
 # X data
-x_pop <- obs_y[1,-1] %>% t()
+x_pop <- obs_y[1,3:19] %>% t()
+
+# X, y 데이터
+x_list <- x_pop %>% as.data.frame() %>% unlist() %>% as.list()
+y_list <- obs_y[-1,3:19] %>% t() %>% as.data.frame()
 ```
 
 \newpage
@@ -513,8 +517,6 @@ x_pop <- obs_y[1,-1] %>% t()
 - 논문의 방법인 EM알고리즘을 통해 multilevel spline 방법으로 최적의 $\mu$ 벡터를 찾았다.
 
 ```{r}
-x_list <- x_pop %>% as.data.frame() %>% unlist() %>% as.list()
-y_list <- obs_y[-1,-1] %>% t() %>% as.data.frame()
 #multilevel
 
   #beta_hat_vector 구하기
@@ -553,12 +555,10 @@ lambda[which.min(GCV_vec)]
 - 최적의 GCV_vec로 EM_out구하기 <- mu_hat 구함
 
 ```{r}
-lambda[which.min(GCV_vec)]
-
 EM_out <- MultiEM_ps(x=z_month,
                      beta_hat_vec=unlist(beta_hat[,1]),
                      V=diag(unlist(beta_hat[,2])),
-                     lambda=lambda[which.min(GCV_vec)])
+                     lambda=1)
 tail(EM_out$mu)
 ```
  
@@ -615,9 +615,11 @@ df2 <- rename(df2, Multi =V2)
 # gather함수 사용
 df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
              key = "Method", value = "mu_z", -Week)
+df2$Week <- parse_date_time(df2$Week, "ymd")
+df2$Week <- as.Date(df2$Week, format="%Y-%m-%d")
 
 # 그래프 그리기
-g <- ggplot(df2) +
+g <- ggplot(df2, aes(x=Week, y=mu_z, group=Method)) +
   geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
   geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +

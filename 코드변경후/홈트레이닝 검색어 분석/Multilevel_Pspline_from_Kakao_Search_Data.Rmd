@@ -70,23 +70,16 @@ library(pspline)
 #'   \item{z}{the grid vector of length J}
 #' }
 #' @export
-
 generate_response <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma = 0.5, N_s, N_m = 200) {
-
   # currently the data interval (z interval) is set to be between -3 and 3.
-
   n <- sample(N_s:N_m, J, replace = TRUE)
-
   # smooth surface: z is the grid sequence and mu is the generated smooth function.
   z <- seq(from = -3, to = 3, length.out = J)
   mu <- z^2 - 10 * cos(2 * pi * z)  # "true" surface.
-
   beta_1 <- mu + rnorm(J, 0, z_sigma)  # slope
   beta_0 <- 0  # intercept
-
   x_list <- lapply(n, rnorm, mean = 0, sd = x_sigma)
   e_list <- lapply(n, rnorm, mean = 0, sd = e_sigma)
-
   # outcome generation function; gives 'y' list given e, beta_0, beta_1, and
   # x (design matrix)
   # for glm: logit link binary p(y = 1) = 1/(1 + exp(-beta_0 - beta_1 * x - e)
@@ -102,7 +95,6 @@ generate_response <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma = 0.5, N
   }
   list(x_list = x_list, y_list = y_list, e_list = e_list, true_mu = mu, z = z)
 }
-
 #' Builds ``granular'' data
 #'
 #' obtains the regression slope and its variance
@@ -112,21 +104,17 @@ generate_response <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma = 0.5, N
 #' @param y_k response vector
 #' @param mod underlying model; either `lm` or `glm`
 #' @export
-
-
 granular <- function(x_k, y_k, mod) {
   # summarizing the regression part
   if (mod == "glm")
     fit_lm <- glm(y_k ~ x_k, family = "binomial")
   if (mod == "lm")
     fit_lm <- lm(y_k ~ x_k)
-
   kth_beta_hat <- coef(fit_lm)[2]
   kth_var <- diag(vcov(fit_lm))[2]
   grain_out <- list(kth_beta_hat, kth_var)
   grain_out
 }
-
 #' Generates kerel matrix
 #'
 #' Generates kernel matrix of J by J, where J = length(z) for multilevel splines
@@ -135,7 +123,6 @@ granular <- function(x_k, y_k, mod) {
 #' @author YD Hwang \email{yhwang@@g.skku.edu} and ER Lee \email{erlee@@skku.edu}
 #' @param z Mid-interval value vector, it is safe to assume this to be equi-distant, but in principle it doesn't have to be. it's not tested though.
 #' @export
-
 make_K <- function(z) {
   J <- length(z)
   Del <- matrix(0, nrow = J - 2, ncol = J)
@@ -151,8 +138,6 @@ make_K <- function(z) {
   K <- t(Del) %*% solve(W) %*% Del
   K
 }
-
-
 #' Main EM function
 #'
 #' Running EM for multilevel splines
@@ -164,10 +149,7 @@ make_K <- function(z) {
 #' @param lambda tuning parameter
 #' @param maxit maximum iteration number
 #' @export
-
-
 main_EM <- function(beta_hat_vec, V, K, lambda, maxit = 500) {
-
   # parameter initilization
   eps <- 1000  # convergence tracker
   tol <- 1e-05  # convergence threshold
@@ -176,19 +158,15 @@ main_EM <- function(beta_hat_vec, V, K, lambda, maxit = 500) {
   mu_m <- rep(mean(beta_hat_vec), J)
   I <- diag(J)
   iter <- 1
-
   while (eps > tol & iter <= maxit) {
     # .. EM starts here
     mu_m_old <- mu_m
     sigma2_m_old <- sigma2_m  # current sigma^2
-
     Vst <- solve(solve(V) + (1/sigma2_m) * diag(J))  # Vst
     D_m <- Vst %*% solve(V)  #D_m <- part_cov %*% V
     mu_m <- solve(D_m + lambda * K) %*% D_m %*% beta_hat_vec
-
     S_lambda <- solve(I %*% D_m %*% I + lambda * K) %*% I %*% D_m
     effective_df <- sum(diag(S_lambda))
-
     sigma2_m <- mean((beta_hat_vec - mu_m)^2)
     eps <- sum(abs(mu_m - mu_m_old)) + abs(sigma2_m_old - sigma2_m)
     iter <- iter + 1
@@ -196,14 +174,11 @@ main_EM <- function(beta_hat_vec, V, K, lambda, maxit = 500) {
       cat("for lambda =", lambda, "max iteration reached; may need to double check \n")
     }
   }  # end of EM .. convergence reached.
-
   BIC <- sum((beta_hat_vec - mu_m)^2)/(J^(1 - effective_df/J))
   GCV <- sum((beta_hat_vec - mu_m)^2)/(J - effective_df)^2 * J
-
   EM_out <- list(mu = mu_m, S_lambda = S_lambda, sigma2 = sigma2_m, BIC = BIC, GCV = GCV)
   EM_out
 }
-
 #' Naive strawman
 #'
 #' Running naive splines
@@ -212,24 +187,17 @@ main_EM <- function(beta_hat_vec, V, K, lambda, maxit = 500) {
 #' @param K kernel matrix from `make_K`
 #' @param lambda tuning parameter
 #' @export
-
 naive_ss <- function(beta_hat_vec, lambda, K) {
-
   J <- length(beta_hat_vec)
   I <- diag(J)
   S_lambda <- solve(I + lambda * K)
   f_hat <- S_lambda %*% beta_hat_vec
-
   eff_df <- sum(diag(S_lambda))
-
   GCV <- sum((beta_hat_vec - f_hat)^2)/(J - eff_df)^2 * J
   BIC <- log(mean((beta_hat_vec - f_hat)^2)) + eff_df * log(J)/J
-
   out <- list(mu = f_hat, S_lambda = S_lambda, BIC = BIC, GCV = GCV)
   out
 }
-
-
 #' Generates simulated response for multilevel splines -- test function #2
 #'
 #' @author YD Hwang \email{yhwang@@g.skku.edu} and ER Lee \email{erlee@@skku.edu}
@@ -252,23 +220,16 @@ naive_ss <- function(beta_hat_vec, lambda, K) {
 #'   \item{z}{the grid vector of length J}
 #' }
 #' @export
-
 generate_response_smooth <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma = 0.5, N_s, N_m = 200) {
-
   # currently the data interval (z interval) is set to be between 0 and 1
-
   n <- sample(N_s:N_m, J, replace = TRUE)
-
   # smooth surface: z is the grid sequence and mu is the generated smooth function.
   z <- seq(from = 0, to = 1, length.out = J)
   mu <- sin(12*(z + 0.2)) / (z + 0.2)  # "true" surface.
-
   beta_1 <- mu + rnorm(J, 0, z_sigma)  # slope
   beta_0 <- 0  # intercept
-
   x_list <- lapply(n, rnorm, mean = 0, sd = x_sigma)
   e_list <- lapply(n, rnorm, mean = 0, sd = e_sigma)
-
   # outcome generation function; gives 'y' list given e, beta_0, beta_1, and
   # x (design matrix)
   # for glm: logit link binary p(y = 1) = 1/(1 + exp(-beta_0 - beta_1 * x - e)
@@ -284,7 +245,6 @@ generate_response_smooth <- function(J, mod, e_sigma = 1, x_sigma = 1, z_sigma =
   }
   list(x_list = x_list, y_list = y_list, e_list = e_list, true_mu = mu, z = z)
 }
-
 # GetDiffMatrix() ---------------------------------------------------------
 #' Get Difference Matrix
 #'
@@ -369,10 +329,8 @@ GetBSpline <- function(x, deg = 3, IntKnots, ExtKnots) {
   if(any(x == ExtKnots[2])) B[x == ExtKnots[2], NumF] <- 1
   return(B)
 }
-
 #library(devtools)
 #devtools::install_github("nclJoshCowley/PSplinesR", force = T)
-
 #' Main EM function using pspline
 #' 
 #'
@@ -380,7 +338,6 @@ GetBSpline <- function(x, deg = 3, IntKnots, ExtKnots) {
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-
 MultiEM_ps <- function(x, beta_hat_vec, V, lambda, maxit = 5000) {
   # parameter initilization
   eps <- 10  # convergence tracker
@@ -423,15 +380,12 @@ MultiEM_ps <- function(x, beta_hat_vec, V, lambda, maxit = 5000) {
   
   BIC <- sum((beta_hat_vec - mu_m)^2)/(J^(1 - effective_df/J))
   GCV <- sum((beta_hat_vec - mu_m)^2)/(J - effective_df)^2 * J
-
   YVarEst <- sigma2_m * (S_lambda %*% t(S_lambda))
   
   EM_out <- list(AlphaEst=AlphaEst, YVarEst=YVarEst, mu = mu_m, S_lambda = S_lambda, sigma2 = sigma2_m, BIC = BIC, GCV = GCV)
   EM_out
 }
-
 # Naive Method in P-spline
-
 naive_ps <- function(x, beta_hat_vec, lambda) {
   # Get natural cubic B-spline
   J <- length(x)
@@ -439,10 +393,8 @@ naive_ps <- function(x, beta_hat_vec, lambda) {
   IK <- x[-c(1, J)]
   EK <- x[c(1, J)]
   B <- PSplinesR::GetBSpline(x, deg = 3, IK, EK)
-
   # Get difference matrix (see DiffMatrix.R)
   D <- GetDiffMatrix(dim(B)[1], 2)
-
   # Calculate \hat{\bm{\alpha} and Hat matrix
   S_lambda <- B %*% solve((t(B) %*% B) + lambda * t(D) %*% D) %*% t(B)
   AlphaEst <-  solve((t(B) %*% B) + lambda * t(D) %*% D) %*% t(B) %*% beta_hat_vec
@@ -456,30 +408,24 @@ naive_ps <- function(x, beta_hat_vec, lambda) {
   
   Sig2Est <- sum((beta_hat_vec - betaEst)^2) / (J - sum(diag(S_lambda)))
   YVarEst <- Sig2Est * (S_lambda %*% t(S_lambda))
-
   out <- list(AlphaEst = AlphaEst,
               betaEst = as.vector(t(betaEst)),
               YVarEst = YVarEst,
               mu = betaEst, S_lambda = S_lambda, BIC = BIC, GCV = GCV)
   out
 }
-
 # Graphic of Plot
 # YEst 역할 : betaEst in naive_ps fnc
 # YVarEst 역할 : YVarEst
 # 
-
 PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
   # Plot original data
   graphics::plot(x, y, pch = 4, ...)
-
   # Calculate SE
   fit <- PSplinesR::FitPSpline(x, y, lambda)
   SE <- stats::qnorm(0.5 * (CI + 1)) * sqrt(diag(fit$YVarEst))
-
   # Calculate fitted values with CI values
   toPlot <- list(mean = fit$YEst, lower = fit$YEst - SE, upper = fit$YEst + SE)
-
   ## CI
   graphics::polygon(c(x, rev(x)), c(toPlot$lower, rev(toPlot$upper)),
           col = "grey75", border = F)
@@ -501,10 +447,8 @@ PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
 # Y data
 obs_y <- fread("HT_kakao_search.csv")
 z_month <- unlist(obs_y[-1,2]) %>% scale()
-
 # X data
 x_pop <- obs_y[1,3:19] %>% t()
-
 # X, y 데이터
 x_list <- x_pop %>% as.data.frame() %>% unlist() %>% as.list()
 y_list <- obs_y[-1,3:19] %>% t() %>% as.data.frame()
@@ -518,9 +462,7 @@ y_list <- obs_y[-1,3:19] %>% t() %>% as.data.frame()
 
 ```{r}
 #multilevel
-
   #beta_hat_vector 구하기
-
   grain_out <- NULL
   J=139
   beta_hat <- NULL
@@ -565,35 +507,26 @@ tail(naive_out$mu)
 # hat_all
 single_beta <- unlist(beta_hat[,1]) %>% as.vector()
 mu_z_multi <- EM_out$mu %>% as.vector()
-
 #mu_z_naive <- naive_out$mu %>% as.vector()
 test_mon <- fread("HT_kakao_search.csv")
 test_mon <- test_mon[-1,1]
-
 mu_z <- cbind(obs_y[-1,2],mu_z_multi) %>% as.data.frame
 mu_z <- rename(mu_z, Week = V2)
-
 # naive
-
 df2 <- cbind(test_mon,single_beta)
 df2 <- rename(df2, Week =V1)
-
 df2_naive <- naive_out$betaEst
 df2 <- cbind(df2,df2_naive)
 df2 <- rename(df2, Naive =df2_naive)
-
 df2 <- cbind(df2,mu_z$mu_z_multi)
 df2 <- rename(df2, Multi =V2)
-
 # gather함수 사용
 df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
              key = "Method", value = "mu_z", -Week)
-
 g <- ggplot(df2) +
   geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
   geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +
   scale_color_discrete(name = "Method")
 g
-
 ```
