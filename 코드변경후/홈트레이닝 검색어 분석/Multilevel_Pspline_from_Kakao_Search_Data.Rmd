@@ -438,7 +438,7 @@ PlotPSplineFit <- function(x, y, lambda, CI = 0.95, ...) {
 \newpage
  
 # 데이터
-- Y data : Y데이터의 경우 139주(2018년 1월 ~ 2020년 8월)동안의 카카오로 "홈트레이닝"을 검색한 횟수를 지역별로 나타냄
+- Y data : Y데이터의 경우 149주(2018년 1월 ~ 2020년 8월)동안의 카카오로 "홈트레이닝"을 검색한 횟수를 지역별로 나타냄
  
 - X data :  X데이터의 경우 17개의 지역별 인구수
 
@@ -464,9 +464,9 @@ y_list <- obs_y[-1,3:19] %>% t() %>% as.data.frame()
 #multilevel
   #beta_hat_vector 구하기
   grain_out <- NULL
-  J=139
+  J=149
   beta_hat <- NULL
-  for(m in 1:139){
+  for(m in 1:149){
     result2_out <- NULL
     results2 <- glm(unlist(y_list[m]) ~ unlist(x_list), maxit=2000)
       kth_beta_hat <- coef(results2)[2]
@@ -507,24 +507,34 @@ tail(naive_out$mu)
 # hat_all
 single_beta <- unlist(beta_hat[,1]) %>% as.vector()
 mu_z_multi <- EM_out$mu %>% as.vector()
+
 #mu_z_naive <- naive_out$mu %>% as.vector()
 test_mon <- fread("HT_kakao_search.csv")
 test_mon <- test_mon[-1,1]
+
 mu_z <- cbind(obs_y[-1,2],mu_z_multi) %>% as.data.frame
 mu_z <- rename(mu_z, Week = V2)
+
 # naive
+
 df2 <- cbind(test_mon,single_beta)
 df2 <- rename(df2, Week =V1)
+
 df2_naive <- naive_out$betaEst
 df2 <- cbind(df2,df2_naive)
 df2 <- rename(df2, Naive =df2_naive)
+
 df2 <- cbind(df2,mu_z$mu_z_multi)
 df2 <- rename(df2, Multi =V2)
+
 # gather함수 사용
 df2 <- gather(df2[, c("Week",  "single_beta", "Naive", "Multi")],
              key = "Method", value = "mu_z", -Week)
-g <- ggplot(df2) +
-  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method)) +
+df2$Week <- parse_date_time(df2$Week, "ymd")
+df2$Week <- as.Date(df2$Week, format="%Y-%m-%d")
+
+g <- ggplot(df2, aes(x=Week, y=mu_z, group=Method)) +
+  geom_line(data= df2 %>% dplyr::filter(Method != "single_beta"),aes(x = Week, y = mu_z, color = Method, linetype = Method, group=Method)) +
   geom_point(data=df2 %>% dplyr::filter(Method == "single_beta"), aes(x = Week, y = single_beta, color = "single_beta")) +
   guides(linetype = "none") +
   scale_color_discrete(name = "Method")

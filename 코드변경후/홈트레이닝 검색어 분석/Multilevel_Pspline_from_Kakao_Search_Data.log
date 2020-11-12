@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019/W32TeX) (preloaded format=xelatex 2020.4.5)  14 OCT 2020 13:50
+This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019/W32TeX) (preloaded format=xelatex 2020.4.5)  14 OCT 2020 14:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1460,17 +1460,18 @@ LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
 LaTeX Font Info:    Font shape `TU/NanumGothic(0)/b/n' will be
 (Font)              scaled to size 12.0pt on input line 201.
 LaTeX Font Info:    Font shape `TU/UnDotum.ttf(0)/m/it' will be
-(Font)              scaled to size 9.84253pt on input line 251.
+(Font)              scaled to size 9.84253pt on input line 258.
+[4]
 File: Multilevel_Pspline_from_Kakao_Search_Data_files/figure-latex/unnamed-chun
 k-9-1.pdf Graphic file (type pdf)
 <use Multilevel_Pspline_from_Kakao_Search_Data_files/figure-latex/unnamed-chunk
 -9-1.pdf>
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 270.
-[4] [5]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 270.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 275.
+[5]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 275.
 (./Multilevel_Pspline_from_Kakao_Search_Data.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 270.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 270.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 275.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 275.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
